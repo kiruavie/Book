@@ -1,7 +1,3 @@
-const librayContainer = document.getElementById("libraryContainer");
-const formContainer = document.getElementById("formContainer");
-const addBookBtn = document.getElementById("addBookBtn");
-
 const myLibrary = [];
 
 function Book(title, author, pages, read) {
@@ -11,69 +7,90 @@ function Book(title, author, pages, read) {
   this.read = read;
 }
 
-function addBookToLibrary(title, author, pages, read) {
+function addBookToLibrary() {
+  const title = prompt("Enter the title of the book:");
+  const author = prompt("Enter the author of the book:");
+  const pages = prompt("Enter the number of pages:");
+  const read = confirm("Have you read this book?");
+
   const newBook = new Book(title, author, pages, read);
+
   myLibrary.push(newBook);
+
+  displayLibrary();
 }
 
-// Add some sample books
-addBookToLibrary("The Obbit", "J.R.R. Tolkien", 300, false);
-addBookToLibrary("Tout Javascript", "Olivier Hondermarck", 384, false);
-addBookToLibrary("Deep Work", "Cal Newport", 265, false);
-addBookToLibrary(
-  "Big data",
-  "Viktor Mayer-Schönberger, Kenneth Cukier",
-  256,
-  false
-);
+function displayLibrary() {
+  const bookList = document.querySelector(
+    ".book-container .book-list .book-container"
+  );
+  bookList.innerHTML = "";
 
-function displayBook() {
-  librayContainer.innerHTML = "";
-
-  //create an unordered list to hold the library
-  const bookList = document.createElement("ul");
-
-  //Iterate through each book in library
-  myLibrary.forEach((book) => {
-    //create list item for each book
-    const bookItem = document.createElement("li");
-
-    //Display book information
-    bookItem.innerHTML = `<li>Title: ${book.title}</li>
-    <li>Author: ${book.author}</li>
-    <li>Pages: ${book.pages}</li>
-    <li>Read: ${book.read}</li>`;
-
-    // Append book item to the list
+  myLibrary.forEach((book, index) => {
+    const bookItem = document.createElement("div");
+    bookItem.classList.add("book-card");
+    bookItem.innerHTML = `
+            <h2>${book.title}</h2>
+            <p><strong>Author:</strong> ${book.author}</p>
+            <p><strong>Pages:</strong> ${book.pages}</p>
+            <p><strong>Read ?:</strong> ${book.read ? "Yes" : "No"}</p>
+            <button onclick="removeBook(${index})">Remove</button>
+            <button onclick="toggleReadStatus(${index})">Toggle Read Status</button>
+          `;
     bookList.appendChild(bookItem);
-
-    librayContainer.appendChild(bookList);
   });
 }
 
-// form button
-function showForm() {
-  formContainer.style.display = "block";
+function removeBook(index) {
+  myLibrary.splice(index, 1);
+  displayLibrary();
 }
 
-// AddNewBook function
-function addNewBook(e) {
-  e.preventDefault();
-  // Get form values
+function toggleReadStatus(index) {
+  myLibrary[index].read = !myLibrary[index].read;
+  displayLibrary();
+}
+
+const addBookButton = document.getElementById("addBookToLibrary");
+addBookButton.addEventListener("click", addBookToLibrary);
+
+const newBookButton = document.getElementById("newBookButton");
+newBookButton.addEventListener("click", function () {
+  const form = document.querySelector(".book-form form");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+});
+
+const form = document.querySelector(".book-form form");
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+
   const title = document.getElementById("title").value;
   const author = document.getElementById("author").value;
   const pages = document.getElementById("pages").value;
   const read = document.getElementById("read").checked;
 
-  addBookToLibrary(title, author, pages, read);
+  const newBook = new Book(title, author, pages, read);
 
-  //Hide the form
-  formContainer.style.display = "none";
+  myLibrary.push(newBook);
 
-  // refresh the display
+  displayLibrary();
 
-  displayBook();
-}
+  form.reset();
+  form.style.display = "none";
+});
 
-// Display the library
-displayBook();
+// Initial books
+myLibrary.push(new Book("The Stranger", "Albert Camus", 123, false));
+myLibrary.push(
+  new Book("One Hundred Years of Solitude", "Gabriel García Márquez", 417, true)
+);
+myLibrary.push(
+  new Book(
+    "The Lord of the Rings: The Fellowship of the Ring",
+    "J.R.R. Tolkien",
+    423,
+    false
+  )
+);
+
+displayLibrary();
